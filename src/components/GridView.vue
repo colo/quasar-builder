@@ -52,7 +52,8 @@
     <div class="item">
 
       <resizable>
-        <component v-bind:is="item.type" v-bind="item.options" ></component>
+        <component v-if="item.type" v-bind:is="item.type" v-bind="item.options" ></component>
+
       </resizable>
 
     </div>
@@ -108,10 +109,45 @@ const resizable = {
   }
 }
 
+const MyQCard = {
+  // functional: true,
+  name: 'my-q-card',
+  props: ['text'],
+  // render (h) {
+  // return h('q-card', [h('q-card-section', {
+  //   props: {
+  //     text: 'foobar'
+  //   }
+  // })])
+  // }
+  render: function (createElement, context) {
+    var self = this
+    // Transparently pass any attributes, event listeners, children, etc.
+    return createElement('q-card', [createElement('q-card-section', {
+      domProps: {
+        innerHTML: self.text
+      }
+      // props: {
+      //   text: 'foobar'
+      // }
+    })])
+  }
+  // render: function (h) {
+  //   return (
+  //     <q-card>
+  //       <q-card-section>Hello</q-card-section>
+  //     </q-card>
+  //   )
+  // }
+  // template: '<q-card class="my-card"><q-card-section>{{text}}</q-card-section></q-card>'
+}
+
+// const HelloCtor = Vue.extend(Hello);
+
 export default {
   name: 'gridview',
   // components: { GridLayout, GridItem, TextWidget, TextAreaWidget, ImageWidget },
-  components: { GridLayout, GridItem, resizable },
+  components: { GridLayout, GridItem, resizable, MyQCard },
   data () {
     return {
       layout: [
@@ -128,9 +164,28 @@ export default {
           'w': 2,
           'h': 4,
           'i': '1',
-          'type': 'q-btn',
-          options: { color: 'white', 'text-color': 'black', label: 'Standard' } },
-        { 'x': 4, 'y': 0, 'w': 2, 'h': 5, 'i': '2' },
+          'type': 'my-q-card',
+          options: {
+            'flat': true,
+            'bordered': true,
+            // class: 'bg-grey-9',
+            text: 'test' +
+            '\nsome more'
+          }
+          // options: { color: 'white', 'text-color': 'black', label: 'Standard' }
+        },
+        {
+          'x': 4,
+          'y': 0,
+          'w': 2,
+          'h': 5,
+          'i': '2',
+          type: 'q-chip',
+          options: {
+            icon: 'alarm',
+            label: 'Set alarm'
+          }
+        },
         { 'x': 6, 'y': 0, 'w': 2, 'h': 3, 'i': '3' },
         { 'x': 8, 'y': 0, 'w': 2, 'h': 3, 'i': '4' },
         { 'x': 10, 'y': 0, 'w': 2, 'h': 3, 'i': '5' },
@@ -258,10 +313,10 @@ export default {
     background: #eee;
 }
 
-.editable {
+/* .editable {
   border: 1px solid lawngreen;
   height: 100%;
-}
+} */
 
 .columns {
     -moz-columns: 120px;
