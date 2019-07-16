@@ -34,13 +34,18 @@
   :layout="layout"
   :col-num="12"
   :row-height="30"
+  :vertical-compact="true"
   :is-draggable="true"
   :is-resizable="true"
   :is-mirrored="false"
-  :vertical-compact="true"
-  :margin="[10, 10]"
+  :margin="[5, 5]"
   :use-css-transforms="true"
+  @layout-updated="layoutUpdatedEvent"
   >
+
+  <!-- :responsive="true" -->
+  <!-- :breakpoints="{ lg: 1919, md: 1439, sm: 1023, xs: 599, xxs: 0 }"
+  :cols="{ lg: 12, md: 8, sm: 6, xs: 2, xxs: 0 }" -->
 
   <grid-item v-for="item in layout"
   :key="item.i"
@@ -48,11 +53,13 @@
   :y="item.y"
   :w="item.w"
   :h="item.h"
-  :i="item.i">
+  :i="item.i"
+  v-bind="item.options"
+  >
     <div class="item">
-
+      <!-- <component v-if="item.el" v-bind:is="item.el.type" v-bind="item.el.options" ></component> -->
       <resizable>
-        <component v-if="item.type" v-bind:is="item.type" v-bind="item.options" ></component>
+        <component v-if="item.el" v-bind:is="item.el.type" v-bind="item.el.options" ></component>
 
       </resizable>
 
@@ -153,56 +160,59 @@ export default {
       layout: [
         { 'x': 0,
           'y': 0,
-          'w': 2,
-          'h': 2,
-          'i': '0',
-          'type': 'q-btn',
-          options: { color: 'white', 'text-color': 'black', label: 'Standard' }
-        },
-        { 'x': 2,
-          'y': 0,
-          'w': 2,
-          'h': 4,
-          'i': '1',
-          'type': 'my-q-card',
-          options: {
-            'flat': true,
-            'bordered': true,
-            // class: 'bg-grey-9',
-            text: 'test' +
-            '\nsome more'
-          }
+          'w': 11,
+          'h': 3,
+          'i': '0'
+          // 'type': 'q-btn',
           // options: { color: 'white', 'text-color': 'black', label: 'Standard' }
         },
-        {
-          'x': 4,
+        { 'x': 11,
           'y': 0,
-          'w': 2,
-          'h': 5,
-          'i': '2',
-          type: 'q-chip',
-          options: {
-            icon: 'alarm',
-            label: 'Set alarm'
+          'w': 1,
+          'h': 1,
+          'i': '1',
+          // options: { static: true },
+          el: {
+            'type': 'my-q-card',
+            options: {
+              'flat': true,
+              'bordered': true
+              // class: 'bg-grey-9',
+              // text: 'test' +
+              // '\nsome more'
+            }
           }
+          // // options: { color: 'white', 'text-color': 'black', label: 'Standard' }
         },
-        { 'x': 6, 'y': 0, 'w': 2, 'h': 3, 'i': '3' },
-        { 'x': 8, 'y': 0, 'w': 2, 'h': 3, 'i': '4' },
-        { 'x': 10, 'y': 0, 'w': 2, 'h': 3, 'i': '5' },
-        { 'x': 0, 'y': 5, 'w': 2, 'h': 5, 'i': '6' },
-        { 'x': 2, 'y': 5, 'w': 2, 'h': 5, 'i': '7' },
-        { 'x': 4, 'y': 5, 'w': 2, 'h': 5, 'i': '8' },
-        { 'x': 6, 'y': 4, 'w': 2, 'h': 4, 'i': '9' },
-        { 'x': 8, 'y': 4, 'w': 2, 'h': 4, 'i': '10' },
-        { 'x': 10, 'y': 4, 'w': 2, 'h': 4, 'i': '11' },
-        { 'x': 0, 'y': 10, 'w': 2, 'h': 5, 'i': '12' },
-        { 'x': 2, 'y': 10, 'w': 2, 'h': 5, 'i': '13' },
-        { 'x': 4, 'y': 8, 'w': 2, 'h': 4, 'i': '14' },
-        { 'x': 6, 'y': 8, 'w': 2, 'h': 4, 'i': '15' },
-        { 'x': 8, 'y': 10, 'w': 2, 'h': 5, 'i': '16' },
-        { 'x': 10, 'y': 4, 'w': 2, 'h': 2, 'i': '17' },
-        { 'x': 0, 'y': 9, 'w': 2, 'h': 3, 'i': '18' },
-        { 'x': 2, 'y': 6, 'w': 2, 'h': 2, 'i': '19' }
+        {
+          'x': 1,
+          'y': 1,
+          'w': 1,
+          'h': 2,
+          'i': '2'
+          // type: 'q-chip',
+          // options: {
+          //   icon: 'alarm',
+          //   label: 'Set alarm'
+          // }
+        }
+        // { 'x': 6, 'y': 0, 'w': 2, 'h': 3, 'i': '3' },
+        // { 'x': 8, 'y': 0, 'w': 2, 'h': 3, 'i': '4' },
+        // { 'x': 10, 'y': 0, 'w': 2, 'h': 3, 'i': '5' },
+        // { 'x': 0, 'y': 5, 'w': 2, 'h': 5, 'i': '6' },
+        // { 'x': 2, 'y': 5, 'w': 2, 'h': 5, 'i': '7' },
+        // { 'x': 4, 'y': 5, 'w': 2, 'h': 5, 'i': '8' },
+        // { 'x': 6, 'y': 4, 'w': 2, 'h': 4, 'i': '9' },
+        // { 'x': 8, 'y': 4, 'w': 2, 'h': 4, 'i': '10' },
+        // { 'x': 10, 'y': 4, 'w': 2, 'h': 4, 'i': '11' },
+        // { 'x': 0, 'y': 10, 'w': 2, 'h': 5, 'i': '12' },
+        // { 'x': 2, 'y': 10, 'w': 2, 'h': 5, 'i': '13' },
+        // { 'x': 4, 'y': 8, 'w': 2, 'h': 4, 'i': '14' },
+        // { 'x': 6, 'y': 8, 'w': 2, 'h': 4, 'i': '15' },
+        // { 'x': 8, 'y': 10, 'w': 2, 'h': 5, 'i': '16' },
+        // { 'x': 10, 'y': 4, 'w': 2, 'h': 2, 'i': '17' },
+        // { 'x': 0, 'y': 9, 'w': 2, 'h': 3, 'i': '18' },
+        // { 'x': 2, 'y': 6, 'w': 2, 'h': 2, 'i': '19' }
       ]
       // isDraggable: false,
       // isResizable: false,
@@ -248,6 +258,10 @@ export default {
   },
 
   methods: {
+    layoutUpdatedEvent: function (layout) {
+      console.log('layoutUpdatedEvent ')
+      console.log(layout)
+    }
   //   ...mapActions([
   //     'addTitleGridItem',
   //     'addContentGridItem',
