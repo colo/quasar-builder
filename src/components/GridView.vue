@@ -30,13 +30,15 @@
       </grid-item>
     </grid-layout>
   </div> -->
+  <div>
+  <!-- <q-btn round color="primary" icon="shopping_cart" v-on="{ click: disableGrid }"/> -->
   <grid-layout
   :layout="layout"
   :col-num="12"
   :row-height="30"
   :vertical-compact="true"
-  :is-draggable="true"
-  :is-resizable="true"
+  :is-draggable="isDraggable"
+  :is-resizable="isResizable"
   :is-mirrored="false"
   :margin="[5, 5]"
   :use-css-transforms="true"
@@ -47,7 +49,8 @@
   <!-- :breakpoints="{ lg: 1919, md: 1439, sm: 1023, xs: 599, xxs: 0 }"
   :cols="{ lg: 12, md: 8, sm: 6, xs: 2, xxs: 0 }" -->
 
-  <grid-item v-for="item in layout"
+  <grid-item
+  v-for="(item, index) in layout"
   :key="item.i"
   :x="item.x"
   :y="item.y"
@@ -55,11 +58,39 @@
   :h="item.h"
   :i="item.i"
   v-bind="item.options"
+  :class="{ 'editMode' : !preview }"
+  :autoSize="true"
   >
     <div class="item">
-      <!-- <component v-if="item.el" v-bind:is="item.el.type" v-bind="item.el.options" ></component> -->
+
+      <!-- <q-icon
+      name="fa fa-trash"
+      v-if="!preview"
+      @click="removeItem({key: index})"
+      style="position: absolute; bottom: 0px; left: 4px;"
+      />
+
+      <component
+      v-if="item.el"
+      :is="item.el.type"
+      v-bind="item.el.options"
+      v-on="item.el.events"
+      /> -->
+      <q-icon
+      name="fa fa-trash"
+      v-if="!preview && (!item.options || !item.options.static)"
+      @click="removeItem(index)"
+      style="position: absolute; bottom: 0px; left: 4px;"
+      />
+
       <resizable>
-        <component v-if="item.el" v-bind:is="item.el.type" v-bind="item.el.options" ></component>
+
+        <component
+        v-if="item.el"
+        :is="item.el.type"
+        v-bind="item.el.options"
+        v-on="item.el.events"
+        />
 
       </resizable>
 
@@ -67,6 +98,7 @@
 
   </grid-item>
   </grid-layout>
+  </div>
 </template>
 <script>
 import { mapGetters, mapActions } from 'vuex'
@@ -150,11 +182,12 @@ const MyQCard = {
 }
 
 // const HelloCtor = Vue.extend(Hello);
+import EditBtn from './editor/edit.vue'
 
 export default {
   name: 'gridview',
   // components: { GridLayout, GridItem, TextWidget, TextAreaWidget, ImageWidget },
-  components: { GridLayout, GridItem, resizable, MyQCard },
+  components: { GridLayout, GridItem, resizable, MyQCard, EditBtn },
   data () {
     return {
       layout: [
@@ -171,15 +204,25 @@ export default {
           'w': 1,
           'h': 1,
           'i': '1',
-          // options: { static: true },
+          options: {
+            static: true
+          },
           el: {
-            'type': 'my-q-card',
+            // 'type': 'edit-btn',
+            'type': 'q-btn',
+            events: { click: this.disableGrid },
             options: {
-              'flat': true,
-              'bordered': true
-              // class: 'bg-grey-9',
-              // text: 'test' +
-              // '\nsome more'
+              round: true,
+              color: 'primary'
+              // icon: 'shopping_cart',
+              // 'v-on': '{ click: disableGrid }',
+              // 'v-on:click': '"disableGrid"',
+              // 'v-on:click': '$emit("disableGrid")'
+              // 'flat': true
+            //   'bordered': true
+            //   // class: 'bg-grey-9',
+            //   // text: 'test' +
+            //   // '\nsome more'
             }
           }
           // // options: { color: 'white', 'text-color': 'black', label: 'Standard' }
@@ -213,11 +256,12 @@ export default {
         // { 'x': 10, 'y': 4, 'w': 2, 'h': 2, 'i': '17' },
         // { 'x': 0, 'y': 9, 'w': 2, 'h': 3, 'i': '18' },
         // { 'x': 2, 'y': 6, 'w': 2, 'h': 2, 'i': '19' }
-      ]
-      // isDraggable: false,
-      // isResizable: false,
-      // preview: true,
-      // contenteditable: false
+      ],
+
+      isDraggable: false,
+      isResizable: false,
+      preview: true,
+      contenteditable: false
     }
   },
   computed: {
@@ -256,11 +300,25 @@ export default {
     //   ]
     // }
   },
-
+  // mounted: function () {
+  //   this.$on('disableGrid', this.disableGrid)
+  // },
   methods: {
+    removeItem: function (key) {
+      if (key > -1) {
+        this.layout.splice(key, 1)
+      }
+    },
     layoutUpdatedEvent: function (layout) {
       console.log('layoutUpdatedEvent ')
       console.log(layout)
+    },
+    disableGrid: function () {
+      console.log('disableGrid')
+      this.isDraggable = !this.isDraggable
+      this.isResizable = !this.isResizable
+      this.preview = !this.preview
+      this.contenteditable = !this.contenteditable
     }
   //   ...mapActions([
   //     'addTitleGridItem',
@@ -278,45 +336,13 @@ export default {
 }
 </script>
 <style>
-/* .editMode {
-  background-color: #fafafa;
-  border-radius: 5px;
+.editMode {
+  background-color: #eee;
+  /* border-radius: 5px; */
 }
-.site-title {
-  font-family: 'Lilita One', cursive;
-  font-size: 50px;
-  color: #F48FB1;
-  text-align: center;
-}
-.heading1 {
-  font-family: 'Crushed', cursive;
-  font-size: 35px;
-  border: none;
-  color: #2196F3;
-}
-.heading2 {
-  font-family: 'Patrick Hand', cursive;
-  font-size: 20px;
-  border: none;
-  color: #3096f3;
-  background-color: #FFF9C4;
-  width: 100%;
-  padding: 10px 5px;
-}
-.heading3 {
-  font-family: 'Homemade Apple', cursive;
-  font-size: 20px;
-  border: none;
-  color: #66d2b3;
-  padding: 0 7px;
-}
-.content {
-  font-family: 'Patrick Hand', cursive;
-  font-size: 20px;
-  color: #2196F3;
-} */
+
 /*** EXAMPLE ***/
-* {
+/* * {
   box-sizing: border-box;
 }
 #content {
@@ -327,12 +353,12 @@ export default {
     background: #eee;
 }
 
-/* .editable {
+.editable {
   border: 1px solid lawngreen;
   height: 100%;
-} */
-
-.columns {
+}
+*/
+/* .columns {
     -moz-columns: 120px;
     -webkit-columns: 120px;
     columns: 120px;
@@ -352,22 +378,24 @@ export default {
     background-origin: content-box;
     box-sizing: border-box;
     cursor: se-resize;
-}
-
+} */
+/*
 .vue-grid-item:not(.vue-grid-placeholder) {
     background: #ccc;
     border: 1px solid black;
     padding: 1rem;
 }
+*/
 
-.vue-grid-item.resizing {
+/* .vue-grid-item.resizing {
     opacity: 0.9;
-}
+} */
 
-.vue-grid-item.static {
+/* .vue-grid-item.static {
     background: #cce;
-}
+} */
 
+/*
 .vue-grid-item .text {
     font-size: 24px;
     text-align: center;
@@ -380,21 +408,21 @@ export default {
     height: 100%;
     width: 100%;
 }
-
-.vue-grid-item .no-drag {
+*/
+/* .vue-grid-item .no-drag {
     height: 100%;
     width: 100%;
 }
 
 .vue-grid-item .minMax {
     font-size: 12px;
-}
+} */
 
-.vue-grid-item .add {
+/* .vue-grid-item .add {
     cursor: pointer;
-}
+} */
 
-.vue-draggable-handle {
+/* .vue-draggable-handle {
     position: absolute;
     width: 20px;
     height: 20px;
@@ -407,7 +435,7 @@ export default {
     background-origin: content-box;
     box-sizing: border-box;
     cursor: pointer;
-}
+} */
 
 .item {
   height: 100%;
