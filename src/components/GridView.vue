@@ -31,6 +31,22 @@
     </grid-layout>
   </div> -->
   <div>
+    <draggable
+    v-model="draggables"
+    :group="{ name: 'elements', pull: 'clone', put: false }"
+    @start="drag=true"
+    @end="drag=false"
+    >
+     <!-- <div v-for="element in draggables" :key="element.id">{{element.name}}</div> -->
+     <div v-for="element in draggables" :key="element.id || element.type">
+       <component
+       :is="element.type"
+       />
+     </div>
+     <!-- v-bind="element.options"
+     v-on="element.events" -->
+     <!-- class="absolute-center vertical-center" -->
+   </draggable>
   <!-- <q-btn round color="primary" icon="shopping_cart" v-on="{ click: disableGrid }"/> -->
   <grid-layout
   :layout="layout"
@@ -61,51 +77,65 @@
   :class="{ 'editMode' : !preview }"
   :autoSize="true"
   >
-    <div class="item">
+    <!-- <div class="item absolute-center vertical-bottom"> -->
+    <draggable
+      class="dragArea"
+      :list="item.elements"
+      :group="'elements'"
+    >
+      <div
+        class="list-group-item"
+        v-for="(element,elIndex) in item.elements"
+        :key="index+'.'+elIndex+'.'+element.id"
+      >
+        {{ element.name }}
+      </div>
+    </draggable>
 
-      <!-- <q-icon
-      name="fa fa-trash"
-      v-if="!preview"
-      @click="removeItem({key: index})"
-      style="position: absolute; bottom: 0px; left: 4px;"
-      />
-
+    <template v-for="(element, elIndex) in item.elements">
+      {{index+'.'+elIndex+'.'+element.id}}
       <component
-      v-if="item.el"
-      :is="item.el.type"
-      v-bind="item.el.options"
-      v-on="item.el.events"
-      /> -->
-      <q-icon
-      name="fa fa-trash"
-      v-if="!preview && (!item.options || !item.options.static)"
-      @click="removeItem(index)"
-      style="position: absolute; bottom: 0px; left: 4px;"
+      :key="index+'.'+elIndex+'.'+element.id"
+      :is="element.type"
+      v-bind="element.options"
+      v-on="element.events"
+      class="absolute-center vertical-center"
       />
+    </template>
 
-      <resizable>
+    <q-icon
+    name="fa fa-trash"
+    v-if="!preview && (!item.options || !item.options.static)"
+    @click="removeItem(index)"
+    style="position: absolute; bottom: 0px; left: 4px;"
+    />
+
+      <!-- <resizable>
 
         <component
         v-if="item.el"
         :is="item.el.type"
         v-bind="item.el.options"
         v-on="item.el.events"
+        class="absolute-center vertical-center"
         />
 
-      </resizable>
+      </resizable> -->
 
-    </div>
+    <!-- </div> -->
 
   </grid-item>
   </grid-layout>
   </div>
 </template>
 <script>
-import { mapGetters, mapActions } from 'vuex'
+// import { mapGetters, mapActions } from 'vuex'
 // import TextWidget from './TextWidget'
 // import TextAreaWidget from './TextAreaWidget'
 // import ImageWidget from './ImageWidget'
 import { GridLayout, GridItem } from 'vue-grid-layout'
+import draggable from 'vuedraggable'
+
 import ResizeSensor from 'resize-sensor'
 
 const resizable = {
@@ -187,44 +217,64 @@ import EditBtn from './editor/edit.vue'
 export default {
   name: 'gridview',
   // components: { GridLayout, GridItem, TextWidget, TextAreaWidget, ImageWidget },
-  components: { GridLayout, GridItem, resizable, MyQCard, EditBtn },
+  components: { GridLayout, GridItem, resizable, MyQCard, EditBtn, draggable },
   data () {
     return {
+      draggables: [
+        {
+          id: 0,
+          type: 'q-btn'
+        },
+        {
+          id: 1,
+          type: 'my-q-card'
+        }
+      ],
+      // draggables_items: [],
+      // draggables_items_0: [],
+      // draggables_items_1: [],
+      // draggables_items_2: [],
+      // draggables_items_3: [],
+
       layout: [
         { 'x': 0,
           'y': 0,
           'w': 11,
           'h': 3,
-          'i': '0'
+          'i': '0',
+          elements: []
           // 'type': 'q-btn',
           // options: { color: 'white', 'text-color': 'black', label: 'Standard' }
         },
         { 'x': 11,
           'y': 0,
           'w': 1,
-          'h': 1,
+          'h': 2,
           'i': '1',
           options: {
             static: true
           },
-          el: {
-            // 'type': 'edit-btn',
-            'type': 'q-btn',
-            events: { click: this.disableGrid },
-            options: {
-              round: true,
-              color: 'primary'
-              // icon: 'shopping_cart',
-              // 'v-on': '{ click: disableGrid }',
-              // 'v-on:click': '"disableGrid"',
-              // 'v-on:click': '$emit("disableGrid")'
-              // 'flat': true
-            //   'bordered': true
-            //   // class: 'bg-grey-9',
-            //   // text: 'test' +
-            //   // '\nsome more'
+          elements: [
+            {
+              // 'type': 'edit-btn',
+              'type': 'q-btn',
+              events: { click: this.disableGrid },
+              options: {
+                round: true,
+                color: 'primary'
+                // icon: 'shopping_cart',
+                // 'v-on': '{ click: disableGrid }',
+                // 'v-on:click': '"disableGrid"',
+                // 'v-on:click': '$emit("disableGrid")'
+                // 'flat': true
+              //   'bordered': true
+              //   // class: 'bg-grey-9',
+              //   // text: 'test' +
+              //   // '\nsome more'
+              }
             }
-          }
+          ]
+
           // // options: { color: 'white', 'text-color': 'black', label: 'Standard' }
         },
         {
@@ -232,7 +282,8 @@ export default {
           'y': 1,
           'w': 1,
           'h': 2,
-          'i': '2'
+          'i': '2',
+          elements: []
           // type: 'q-chip',
           // options: {
           //   icon: 'alarm',
@@ -319,6 +370,10 @@ export default {
       this.isResizable = !this.isResizable
       this.preview = !this.preview
       this.contenteditable = !this.contenteditable
+    },
+    addToList: function () {
+      console.log('addToList')
+      console.log(arguments)
     }
   //   ...mapActions([
   //     'addTitleGridItem',
