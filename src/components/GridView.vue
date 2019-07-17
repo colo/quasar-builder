@@ -88,20 +88,41 @@
         v-for="(element,elIndex) in item.elements"
         :key="index+'.'+elIndex+'.'+element.id"
       >
-        {{ element.name }}
-      </div>
-    </draggable>
+        <component
+        :is="element.type"
+        v-bind="element.options"
+        v-on="element.events"
+        style="position: relative"
+        />
 
-    <template v-for="(element, elIndex) in item.elements">
-      {{index+'.'+elIndex+'.'+element.id}}
-      <component
-      :key="index+'.'+elIndex+'.'+element.id"
-      :is="element.type"
-      v-bind="element.options"
-      v-on="element.events"
-      class="absolute-center vertical-center"
-      />
-    </template>
+        <q-icon
+        name="fa fa-trash"
+        v-if="!preview && (!item.options || !item.options.static)"
+        @click="removeElement(index+'.'+elIndex+'.'+element.id)"
+        />
+        <!-- style="position: absolute; margin-top: 1px; margin-left: -20px; z-index: 9999;" -->
+        <!-- style="position: absolute; top: 0; left: 0; z-index: 999;" -->
+      </div>
+
+      <!-- <template v-for="(element, elIndex) in item.elements">
+        <component
+        :key="index+'.'+elIndex+'.'+element.id"
+        :is="element.type"
+        v-bind="element.options"
+        v-on="element.events"
+        style="position: relative"
+        />
+
+        <q-icon
+        :key="'trash.'+index+'.'+elIndex+'.'+element.id"
+        name="fa fa-trash"
+        v-if="!preview && (!item.options || !item.options.static)"
+        @click="removeElement(index+'.'+elIndex+'.'+element.id)"
+        style="position: absolute; top: 0; left: 0; z-index: 999;"
+        />
+      </template> -->
+
+    </draggable>
 
     <q-icon
     name="fa fa-trash"
@@ -228,6 +249,10 @@ export default {
         {
           id: 1,
           type: 'my-q-card'
+        },
+        {
+          id: 2,
+          type: 'q-card'
         }
       ],
       // draggables_items: [],
